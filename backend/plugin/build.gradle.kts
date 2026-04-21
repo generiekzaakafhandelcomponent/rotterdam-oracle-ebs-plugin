@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
+val camundaMockitoVersion: String by project
+val kotlinLoggingVersion: String by project
+val mockitoKotlinVersion: String by project
+val mtlsSslContextVersion: String by project
+val openApiGeneratorPluginVersion: String by project
+
 plugins {
-    id("org.openapi.generator") version "7.12.0"
+    id("org.openapi.generator") version "$openApiGeneratorPluginVersion"
 }
 
 dockerCompose {
@@ -33,13 +39,13 @@ dependencies {
     implementation("com.ritense.valtimo:plugin-valtimo")
     implementation("com.ritense.valtimo:value-resolver")
 
-    implementation(project(":backend:mTLS-SSLContext"))
+    implementation("com.ritense.valtimoplugins:mTLS-SSLContext:$mtlsSslContextVersion")
 
     // Spring core web functionality
     implementation("org.springframework:spring-web")
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.3")
+    implementation("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion")
 
     // Jackson FasterXML
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -54,8 +60,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 //    testImplementation("org.camunda.bpm:camunda-bpm-junit5:7.21.0")
     testImplementation("org.mockito:mockito-core")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
-    testImplementation("org.camunda.community.mockito:camunda-platform-7-mockito:7.21.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+    testImplementation("org.camunda.community.mockito:camunda-platform-7-mockito:$camundaMockitoVersion")
     testImplementation("com.squareup.okhttp3:mockwebserver")
 }
 
