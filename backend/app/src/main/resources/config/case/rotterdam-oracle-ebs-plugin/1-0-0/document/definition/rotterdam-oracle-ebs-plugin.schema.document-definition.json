@@ -1,0 +1,98 @@
+{
+  "$id": "rotterdam-oracle-ebs-plugin.schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Gemeente Rotterdam: Oracle EBS Plugin",
+  "type": "object",
+  "properties": {
+    "additionalProperties": false,
+    "procesCode": {
+      "type": "string"
+    },
+    "referentieNummer": {
+      "type": "string"
+    },
+    "sleutel": {
+      "type": "string"
+    },
+    "boekdatumTijd": {
+      "type": "string"
+    },
+    "categorie": {
+      "type": "string"
+    },
+    "saldoSoort": {
+      "type": "string"
+    },
+    "omschrijving": {
+      "type": "string"
+    },
+    "grootboek": {
+      "type": "string"
+    },
+    "boekjaar": {
+      "type": "integer"
+    },
+    "boekperiode": {
+      "type": "integer"
+    },
+    "journaalpostRegels": {
+      "additionalProperties": false,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "grootboekSleutel": {
+            "type": "string"
+          },
+          "boekingType": {
+            "type": "string"
+          },
+          "bedrag": {
+            "type": "number"
+          },
+          "omschrijving": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "grootboekSleutel",
+          "boekingType",
+          "bedrag",
+          "omschrijving"
+        ]
+      }
+    },
+    "verkoopfactuurRegels": {
+      "additionalProperties": false,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hoeveelheid": {
+            "type": "string"
+          },
+          "tarief": {
+            "type": "string"
+          },
+          "btwPercentage": {
+            "type": "string"
+          },
+          "grootboekSleutel": {
+            "type": "string"
+          },
+          "bronSleutel": {
+            "type": "string"
+          },
+          "omschrijving": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "hoeveelheid",
+          "tarief",
+          "btwPercentage"
+        ]
+      }
+    }
+  }
+}
