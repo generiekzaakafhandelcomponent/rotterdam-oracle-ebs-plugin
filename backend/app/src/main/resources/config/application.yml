@@ -1,6 +1,6 @@
 spring:
   application:
-    name: plugin-sandbox-application
+    name: rotterdam-oracle-ebs-plugin-application
   profiles:
     active: dev
   jackson:
