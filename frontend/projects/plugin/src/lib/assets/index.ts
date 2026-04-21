@@ -14,13 +14,4 @@
  * limitations under the License.
  */
 
-/*
- * Public API Surface of Rotterdam Oracle E-Business Suite plugin
- */
-
-export * from './lib/models';
-export * from './lib/rotterdam-oracle-ebs.plugin.module';
-export * from './lib/rotterdam-oracle-ebs-plugin.specification';
-export * from './lib/components/configuration/configuration.component';
-export * from './lib/components/journaalpost-opvoeren/journaalpost-opvoeren.component';
-export * from './lib/components/verkoopfactuur-opvoeren/verkoopfactuur-opvoeren.component';
+export * from './rotterdam-oracle-ebs-plugin-logo';
