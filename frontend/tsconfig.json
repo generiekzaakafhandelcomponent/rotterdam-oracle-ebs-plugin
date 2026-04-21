@@ -29,7 +29,7 @@
             "@src/*": [
                 "src/*"
             ],
-            "@valtimo-plugins/sample-plugin": [
+            "@valtimo-plugins/rotterdam-oracle-ebs": [
                 "projects/plugin/src/public_api.ts"
             ]
         }

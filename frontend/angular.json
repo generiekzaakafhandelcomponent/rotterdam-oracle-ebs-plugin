@@ -147,7 +147,7 @@
                 }
             }
         },
-        "@valtimo-plugins/sample-plugin": {
+        "@valtimo-plugins/rotterdam-oracle-ebs": {
             "projectType": "library",
             "root": "projects/plugin",
             "sourceRoot": "projects/plugin/src",
