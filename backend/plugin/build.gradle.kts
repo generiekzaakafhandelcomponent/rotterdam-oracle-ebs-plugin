@@ -18,10 +18,8 @@ val camundaMockitoVersion: String by project
 val kotlinLoggingVersion: String by project
 val mockitoKotlinVersion: String by project
 val mtlsSslContextVersion: String by project
-val openApiGeneratorPluginVersion: String by project
-
 plugins {
-    id("org.openapi.generator") version "$openApiGeneratorPluginVersion"
+    id("org.openapi.generator") version "7.13.0"
 }
 
 dockerCompose {
@@ -69,7 +67,7 @@ apply(from = "gradle/publishing.gradle")
 
 openApiGenerate {
     generatorName = "kotlin"
-    inputSpec = "$rootDir/backend/rotterdam-oracle-ebs/src/main/resources/opvoeren_api_journaalpost_verkoopfactuur.yaml"
+    inputSpec = "$rootDir/backend/plugin/src/main/resources/opvoeren_api_journaalpost_verkoopfactuur.yaml"
     outputDir = "${getLayout().buildDirectory.get()}/generated"
     packageName = "com.rotterdam.esb.opvoeren"
     generateApiDocumentation = false

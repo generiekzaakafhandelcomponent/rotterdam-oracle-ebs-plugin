@@ -20,7 +20,7 @@ import com.rotterdam.esb.opvoeren.models.Grootboekrekening
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
-import org.camunda.bpm.engine.delegate.DelegateExecution
+import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.camunda.community.mockito.delegate.DelegateExecutionFake
 import org.hibernate.validator.constraints.Length
 import org.junit.jupiter.api.AfterEach
