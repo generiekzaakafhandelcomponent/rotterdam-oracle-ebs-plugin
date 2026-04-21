@@ -32,21 +32,21 @@ dockerCompose {
 }
 
 dependencies {
-    implementation("com.ritense.valtimo:core")
-    implementation("com.ritense.valtimo:contract")
-    implementation("com.ritense.valtimo:plugin-valtimo")
-    implementation("com.ritense.valtimo:value-resolver")
+    compileOnly("com.ritense.valtimo:core")
+    compileOnly("com.ritense.valtimo:contract")
+    compileOnly("com.ritense.valtimo:plugin-valtimo")
+    compileOnly("com.ritense.valtimo:value-resolver")
 
-    implementation("com.ritense.valtimoplugins:mTLS-SSLContext:$mtlsSslContextVersion")
+    compileOnly("com.ritense.valtimoplugins:mTLS-SSLContext:$mtlsSslContextVersion")
 
     // Spring core web functionality
-    implementation("org.springframework:spring-web")
+    compileOnly("org.springframework:spring-web")
 
     // Logging
-    implementation("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion")
+    compileOnly("io.github.oshai:kotlin-logging-jvm:$kotlinLoggingVersion")
 
     // Jackson FasterXML
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    compileOnly("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     // Apache HTTP Client
     implementation("org.apache.httpcomponents.core5:httpcore5")
