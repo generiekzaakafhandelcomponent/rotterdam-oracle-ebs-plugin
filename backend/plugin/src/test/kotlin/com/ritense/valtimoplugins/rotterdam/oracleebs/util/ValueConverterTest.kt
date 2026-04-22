@@ -10,7 +10,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 class ValueConverterTest {
-
     @Test
     fun `localDateFrom returns LocalDate when input is LocalDate`() {
         val date = LocalDate.of(2023, 5, 17)

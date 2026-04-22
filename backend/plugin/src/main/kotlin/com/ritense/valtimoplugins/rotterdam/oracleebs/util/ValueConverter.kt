@@ -5,7 +5,6 @@ import java.time.LocalDate
 import java.time.OffsetDateTime
 
 object ValueConverter {
-
     fun localDateFrom(value: Any): LocalDate =
         when (value) {
             is LocalDate -> value
@@ -70,10 +69,14 @@ object ValueConverter {
                     value.replace(",", "")
                 }
             }
+
             value.contains(",") -> {
                 // Assume comma is separator ("1234,56")
                 value.replace(",", ".")
             }
-            else -> value // Assume dot is separator or no decimal ("1234.56", "1234")
+
+            else -> {
+                value
+            } // Assume dot is separator or no decimal ("1234.56", "1234")
         }
 }
