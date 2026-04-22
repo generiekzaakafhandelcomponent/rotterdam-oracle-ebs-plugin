@@ -17,25 +17,25 @@ import java.util.Base64
 import javax.net.ssl.SSLContext
 
 object HttpClientHelper {
-
     private const val PKCS12 = "PKCS12"
     private const val X_509 = "X.509"
     private const val RSA = "RSA"
 
-    fun createDefaultHttpClient(): CloseableHttpClient {
-        return HttpClients.createDefault()
-    }
+    fun createDefaultHttpClient(): CloseableHttpClient = HttpClients.createDefault()
 
     fun createSecureHttpClient(mTlsSslContext: MTlsSslContext): CloseableHttpClient =
         mTlsSslContext.createSslContext().let { sslContext ->
-            PoolingHttpClientConnectionManagerBuilder.create()
+            PoolingHttpClientConnectionManagerBuilder
+                .create()
                 .setSSLSocketFactory(
-                    SSLConnectionSocketFactoryBuilder.create()
+                    SSLConnectionSocketFactoryBuilder
+                        .create()
                         .setSslContext(sslContext)
-                        .build()
-                )
-                .build().let { connectionManager ->
-                    HttpClients.custom()
+                        .build(),
+                ).build()
+                .let { connectionManager ->
+                    HttpClients
+                        .custom()
                         .setConnectionManager(connectionManager)
                         .build()
                 }
@@ -44,17 +44,20 @@ object HttpClientHelper {
     fun createSecureHttpClient(
         base64PrivateKey: String,
         base64ClientCert: String,
-        base64CaCert: String
+        base64CaCert: String,
     ): CloseableHttpClient =
         createSslContext(base64PrivateKey, base64ClientCert, base64CaCert).let { sslContext ->
-            PoolingHttpClientConnectionManagerBuilder.create()
+            PoolingHttpClientConnectionManagerBuilder
+                .create()
                 .setSSLSocketFactory(
-                    SSLConnectionSocketFactoryBuilder.create()
+                    SSLConnectionSocketFactoryBuilder
+                        .create()
                         .setSslContext(sslContext)
-                        .build()
-                )
-                .build().let { connectionManager ->
-                    HttpClients.custom()
+                        .build(),
+                ).build()
+                .let { connectionManager ->
+                    HttpClients
+                        .custom()
                         .setConnectionManager(connectionManager)
                         .build()
                 }
@@ -63,23 +66,26 @@ object HttpClientHelper {
     private fun createSslContext(
         base64PrivateKey: String,
         base64ClientCert: String,
-        base64CaCert: String
+        base64CaCert: String,
     ): SSLContext {
         val privateKey = decodePrivateKey(base64PrivateKey)
         val clientCert = decodeCertificate(base64ClientCert)
         val caCert = decodeCertificate(base64CaCert)
 
-        val keyStore = KeyStore.getInstance(PKCS12).apply {
-            load(null, null) // Initialize empty keystore
-            setKeyEntry("client-cert", privateKey, null, arrayOf(clientCert))
-        }
+        val keyStore =
+            KeyStore.getInstance(PKCS12).apply {
+                load(null, null) // Initialize empty keystore
+                setKeyEntry("client-cert", privateKey, null, arrayOf(clientCert))
+            }
 
-        val trustStore = KeyStore.getInstance(PKCS12).apply {
-            load(null, null) // Initialize empty truststore
-            setCertificateEntry("ca-cert", caCert)
-        }
+        val trustStore =
+            KeyStore.getInstance(PKCS12).apply {
+                load(null, null) // Initialize empty truststore
+                setCertificateEntry("ca-cert", caCert)
+            }
 
-        return SSLContextBuilder.create()
+        return SSLContextBuilder
+            .create()
             .loadKeyMaterial(keyStore, null) // No password needed
             .loadTrustMaterial(trustStore, null)
             .build()
@@ -87,7 +93,7 @@ object HttpClientHelper {
 
     private fun decodeCertificate(base64Cert: String): Certificate =
         CertificateFactory.getInstance(X_509).generateCertificate(
-            ByteArrayInputStream(Base64.getDecoder().decode(base64Cert))
+            ByteArrayInputStream(Base64.getDecoder().decode(base64Cert)),
         )
 
     private fun decodePrivateKey(base64Key: String): PrivateKey =

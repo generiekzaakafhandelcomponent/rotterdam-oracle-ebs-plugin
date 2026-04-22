@@ -7,4 +7,4 @@ data class AdresPostbus(
     override val postcode: String,
     override val plaatsnaam: String,
     override val landcode: String,
-): Adres
+) : Adres

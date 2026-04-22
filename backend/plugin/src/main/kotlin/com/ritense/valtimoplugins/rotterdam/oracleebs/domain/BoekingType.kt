@@ -1,6 +1,8 @@
 package com.ritense.valtimoplugins.rotterdam.oracleebs.domain
 
-enum class BoekingType(val title: String) {
+enum class BoekingType(
+    val title: String,
+) {
     CREDIT("Credit"),
-    DEBET("Debet")
+    DEBET("Debet"),
 }

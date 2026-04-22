@@ -8,5 +8,5 @@ data class AdresLocatie(
     val huisnummertoevoeging: String? = null,
     override val postcode: String,
     override val plaatsnaam: String,
-    override val landcode: String
-): Adres
+    override val landcode: String,
+) : Adres

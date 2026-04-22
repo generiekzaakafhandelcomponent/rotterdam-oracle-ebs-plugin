@@ -1,4 +1,4 @@
-rootProject.name = "gzac-plugin-template"
+rootProject.name = "rotterdam-oracle-ebs-plugin"
 include(
     "backend",
     "backend:app",

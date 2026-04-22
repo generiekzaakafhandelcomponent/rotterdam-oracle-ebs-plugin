@@ -6,9 +6,8 @@ data class FactuurRegel(
     val btwPercentage: String,
     val grootboekSleutel: String,
     val bronSleutel: String,
-    val omschrijving: String
+    val omschrijving: String,
 ) {
-
     companion object {
         fun from(map: LinkedHashMap<String, String>) =
             FactuurRegel(
@@ -17,7 +16,7 @@ data class FactuurRegel(
                 btwPercentage = map["btwPercentage"] as String,
                 grootboekSleutel = map["grootboekSleutel"] as String,
                 bronSleutel = map["bronSleutel"] as String,
-                omschrijving = map["omschrijving"] as String
+                omschrijving = map["omschrijving"] as String,
             )
     }
 }

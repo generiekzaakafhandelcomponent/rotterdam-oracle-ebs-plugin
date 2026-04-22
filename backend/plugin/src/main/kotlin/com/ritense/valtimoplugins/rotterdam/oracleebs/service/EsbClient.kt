@@ -10,12 +10,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.web.client.RestClient
 
 class EsbClient {
-
     fun createRestClient(
         objectMapper: ObjectMapper,
         baseUrl: String,
         authenticationEnabled: Boolean = false,
-        mTlsSslContext: MTlsSslContext?
+        mTlsSslContext: MTlsSslContext?,
     ): RestClient {
         logger.debug { "Creating ESB client" }
         return when {
@@ -25,23 +24,26 @@ class EsbClient {
                     logger.debug { "Using secure HttpClient with Client Certificate authentication" }
                 }
             }
-            else ->
+
+            else -> {
                 HttpClientHelper.createDefaultHttpClient().also {
                     logger.debug { "Using default HttpClient" }
                 }
+            }
         }.let { httpClient ->
-            RestClient.builder()
+            RestClient
+                .builder()
                 .messageConverters { converters ->
-                  // remove the default Jackson converter(s)
-                  converters.removeIf { it is MappingJackson2HttpMessageConverter }
-                  // add Jackson converter with specified object mapper
-                  converters.add(
-                      MappingJackson2HttpMessageConverter(objectMapper)
-                  )
-                }
-                .baseUrl(baseUrl)
+                    // remove the default Jackson converter(s)
+                    converters.removeIf { it is MappingJackson2HttpMessageConverter }
+                    // add Jackson converter with specified object mapper
+                    converters.add(
+                        MappingJackson2HttpMessageConverter(objectMapper),
+                    )
+                }.baseUrl(baseUrl)
                 .requestFactory(HttpComponentsClientHttpRequestFactory(httpClient))
-                .build().also {
+                .build()
+                .also {
                     logger.debug { "Created ESB client using RestClient" }
                 }
         }

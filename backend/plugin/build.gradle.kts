@@ -18,6 +18,7 @@ val camundaMockitoVersion: String by project
 val kotlinLoggingVersion: String by project
 val mockitoKotlinVersion: String by project
 val mtlsSslContextVersion: String by project
+val okhttpVersion: String by project
 plugins {
     id("org.openapi.generator") version "7.13.0"
 }
@@ -53,14 +54,19 @@ dependencies {
     implementation("org.apache.httpcomponents.client5:httpclient5")
 
     // Testing
+    testImplementation("com.ritense.valtimo:contract")
+    testImplementation("com.ritense.valtimo:core")
+    testImplementation("com.ritense.valtimo:value-resolver")
+    testImplementation("com.ritense.valtimoplugins:mTLS-SSLContext:$mtlsSslContextVersion")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-//    testImplementation("org.camunda.bpm:camunda-bpm-junit5:7.21.0")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
-    testImplementation("org.camunda.community.mockito:camunda-platform-7-mockito:$camundaMockitoVersion")
-    testImplementation("com.squareup.okhttp3:mockwebserver")
+    testImplementation("com.fasterxml.jackson.core:jackson-databind")
+    testImplementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+    testImplementation("org.springframework:spring-web")
+    testImplementation("com.squareup.okhttp3:mockwebserver:$okhttpVersion")
 }
 
 apply(from = "gradle/publishing.gradle")
@@ -74,11 +80,12 @@ openApiGenerate {
     generateApiTests = false
     generateModelDocumentation = false
     generateModelTests = false
-    configOptions = mapOf(
-        "library" to "jvm-spring-restclient",
-        "serializationLibrary" to "jackson",
-        "useSpringBoot3" to "true"
-    )
+    configOptions =
+        mapOf(
+            "library" to "jvm-spring-restclient",
+            "serializationLibrary" to "jackson",
+            "useSpringBoot3" to "true",
+        )
 }
 
 sourceSets {

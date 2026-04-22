@@ -7,7 +7,6 @@ data class JournaalpostRegel(
     val bedrag: String,
     val omschrijving: String? = null,
 ) {
-
     companion object {
         fun from(map: LinkedHashMap<String, String>) =
             JournaalpostRegel(
@@ -15,7 +14,7 @@ data class JournaalpostRegel(
                 bronSleutel = (map["bronSleutel"] as? String),
                 boekingType = map["boekingType"] as String,
                 bedrag = map["bedrag"] as String,
-                omschrijving = map["omschrijving"] as String
+                omschrijving = map["omschrijving"] as String,
             )
     }
 }
