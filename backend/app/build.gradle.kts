@@ -1,5 +1,6 @@
 val kotlinLoggingVersion: String by project
 val nettyResolverDnsNativeMacOsVersion: String by project
+val mtlsSslContextVersion: String by project
 
 dependencies {
     implementation(platform("com.ritense.valtimo:valtimo-dependency-versions"))
@@ -17,6 +18,9 @@ dependencies {
     }
 
     implementation(project(":backend:plugin"))
+    implementation("com.ritense.valtimoplugins:mTLS-SSLContext:$mtlsSslContextVersion") {
+        isTransitive = false
+    }
 }
 
 tasks.jar {
@@ -27,7 +31,7 @@ apply(from = "../../gradle/environment.gradle.kts")
 val configureEnvironment = extra["configureEnvironment"] as (task: ProcessForkOptions) -> Unit
 
 dockerCompose {
-    setProjectName("gzac-docker-compose")
+    setProjectName("rotterdam-oracle-ebs-plugin")
     composeAdditionalArgs.addAll("--profile", "zgw")
     // composeAdditionalArgs = ["--profile", "zgw", "--profile", "openformulieren", "--profile", "openklant"]
     stopContainers = false
