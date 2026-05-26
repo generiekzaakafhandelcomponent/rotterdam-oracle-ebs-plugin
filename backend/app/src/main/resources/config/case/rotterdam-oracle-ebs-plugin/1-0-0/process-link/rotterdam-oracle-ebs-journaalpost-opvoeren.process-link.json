@@ -41,7 +41,14 @@
           "bronSleutel": "doc:journaalpostRegels[0].bronSleutel",
           "boekingType": "doc:journaalpostRegels[0].boekingType",
           "bedrag": "doc:journaalpostRegels[0].bedrag",
-          "omschrijving": "doc:journaalpostRegels[0].omschrijving"
+          "omschrijving": "doc:journaalpostRegels[0].omschrijving",
+          "bronspecifiekewaarden": [
+            {
+              "naam": "doc:journaalpostRegels[0].bronspecifiekeWaarden[0].naam",
+              "waarde": "doc:journaalpostRegels[0].bronspecifiekeWaarden[0].waarde",
+              "volgorde": "doc:journaalpostRegels[0].bronspecifiekeWaarden[0].volgorde"
+            }
+          ]
         }
       ]
     }
