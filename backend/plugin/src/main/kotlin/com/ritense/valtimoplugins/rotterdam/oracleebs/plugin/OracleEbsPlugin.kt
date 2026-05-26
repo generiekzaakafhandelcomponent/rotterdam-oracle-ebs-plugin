@@ -17,6 +17,7 @@ import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresType
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BoekingType
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.FactuurKlasse
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.FactuurRegel
+import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BronspecifiekeWaarde
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.JournaalpostRegel
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.NatuurlijkPersoon
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.NietNatuurlijkPersoon
@@ -25,6 +26,7 @@ import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.SaldoSoort
 import com.ritense.valtimoplugins.rotterdam.oracleebs.service.EsbClient
 import com.ritense.valtimoplugins.rotterdam.oracleebs.util.ValueConverter
 import com.ritense.valueresolver.ValueResolverService
+import com.rotterdam.esb.opvoeren.models.Bronspecifiekewaardesegment
 import com.rotterdam.esb.opvoeren.models.Factuurregel
 import com.rotterdam.esb.opvoeren.models.Grootboekrekening
 import com.rotterdam.esb.opvoeren.models.Journaalpost
@@ -170,7 +172,8 @@ class OracleEbsPlugin(
             when (regelsViaResolver) {
                 is ArrayList<*> -> {
                     regelsViaResolver.map {
-                        JournaalpostRegel.from(it as LinkedHashMap<String, String>)
+                        @Suppress("UNCHECKED_CAST")
+                        JournaalpostRegel.from(it as LinkedHashMap<String, Any?>)
                     }
                 }
 
@@ -213,7 +216,13 @@ class OracleEbsPlugin(
             journaalpostregelboekingtype = boekingTypeFrom(resolvedLineValues[BOEKING_TYPE_KEY]!!),
             journaalpostregelbedrag = ValueConverter.doubleFrom(resolvedLineValues[BEDRAG_KEY]!!),
             journaalpostregelomschrijving = ValueConverter.stringOrNullFrom(resolvedLineValues[OMSCHRIJVING_KEY]!!),
-            bronspecifiekewaarden = null,
+            bronspecifiekewaarden = regel.bronspecifiekewaarden?.map { bsw ->
+                Bronspecifiekewaardesegment(
+                    bronspecifiekewaardesegmentnaam = bsw.naam,
+                    bronspecifiekewaardesegmentwaarde = bsw.waarde,
+                    volgorde = bsw.volgorde,
+                )
+            },
         )
     }
 

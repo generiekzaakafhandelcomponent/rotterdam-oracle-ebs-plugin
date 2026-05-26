@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.ritense.valtimo.contract.json.MapperSingleton
 import com.ritense.valtimoplugins.mtlssslcontext.MTlsSslContext
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresLocatie
+import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BronspecifiekeWaarde
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresPostbus
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresType
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BoekingType
@@ -366,6 +367,52 @@ class OracleEbsPluginTest {
     }
 
     @Test
+    fun `should push journaalpost with bronspecifiekewaarden`() {
+        // given
+        val execution = mock<DelegateExecution>()
+        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+
+        mockOkResponse(verwerkingsstatusGeslaagdAsJson())
+
+        // when & then
+        assertDoesNotThrow {
+            plugin.journaalpostOpvoeren(
+                execution = execution,
+                pvResultVariable = "verwerkingsstatus",
+                procesCode = "98332",
+                referentieNummer = "2025-AGV-123456",
+                sleutel = "784",
+                boekdatumTijd = "2025-03-28T13:34:26+02:00",
+                categorie = "Vergunningen",
+                saldoSoort = SaldoSoort.WERKELIJK.title,
+                omschrijving = "Aanvraag Omgevingsvergunning",
+                grootboek = "100",
+                boekjaar = "2025",
+                boekperiode = "2",
+                regels = journaalpostRegelsMetBronspecifiekewaarden(),
+            )
+        }
+
+        mockWebServer.takeRequest().let { recordedRequest ->
+            assertThat(recordedRequest.method).isEqualTo(HttpMethod.POST.name())
+            assertThat(recordedRequest.path).isEqualTo("/journaalpost/opvoeren")
+
+            objectMapper.readTree(recordedRequest.body.readUtf8()).let { body ->
+                val bswArray = body
+                    .get("journaalpost")
+                    .get("journaalpostregels")
+                    .get(0)
+                    .get("bronspecifiekewaarden")
+                assertThat(bswArray).isNotNull
+                assertThat(bswArray.size()).isEqualTo(1)
+                assertThat(bswArray.get(0).get("bronspecifiekewaardesegmentnaam").asText()).isEqualTo("afletterreferentie")
+                assertThat(bswArray.get(0).get("bronspecifiekewaardesegmentwaarde").asText()).isEqualTo("12345")
+                assertThat(bswArray.get(0).get("volgorde").asInt()).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
     fun `should push verkoopfactuur`() {
         // given
         val execution = mock<DelegateExecution>()
@@ -586,6 +633,24 @@ class OracleEbsPluginTest {
                 boekingType = BoekingType.DEBET.title,
                 bedrag = "150",
                 omschrijving = "Inboeken",
+            ),
+        )
+
+    private fun journaalpostRegelsMetBronspecifiekewaarden() =
+        listOf(
+            JournaalpostRegel(
+                grootboekSleutel = "600",
+                bronSleutel = null,
+                boekingType = BoekingType.CREDIT.title,
+                bedrag = "150,00",
+                omschrijving = "Afboeken",
+                bronspecifiekewaarden = listOf(
+                    BronspecifiekeWaarde(
+                        naam = "afletterreferentie",
+                        waarde = "12345",
+                        volgorde = 1,
+                    ),
+                ),
             ),
         )
 
