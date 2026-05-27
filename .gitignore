@@ -136,6 +136,13 @@ Desktop.ini
 !.mvn/wrapper/maven-wrapper.jar
 
 ######################
+# Claude Code
+######################
+.claude/
+.playwright-mcp/
+CLAUDE.md
+
+######################
 # Valtimo
 ######################
 !libs/aws-*.jar

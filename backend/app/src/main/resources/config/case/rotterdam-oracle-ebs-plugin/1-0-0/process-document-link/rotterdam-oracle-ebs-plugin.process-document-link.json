@@ -5,6 +5,11 @@
     "startableByUser": true
   },
   {
+    "processDefinitionKey": "rotterdam-oracle-ebs-journaalpost-opvoeren-via-resolver",
+    "canInitializeDocument": false,
+    "startableByUser": true
+  },
+  {
     "processDefinitionKey": "rotterdam-oracle-ebs-verkoopfactuur-opvoeren",
     "canInitializeDocument": true,
     "startableByUser": true

@@ -38,6 +38,13 @@ object ValueConverter {
             else -> BigDecimal.ZERO
         }
 
+    fun integerFrom(value: Any): Int =
+        when (value) {
+            is Int -> value
+            is String -> value.toInt()
+            else -> throw IllegalArgumentException("Unsupported type ${value::class}")
+        }
+
     fun integerOrNullFrom(value: Any?): Int? =
         when (value) {
             is Int -> value

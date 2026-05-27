@@ -52,6 +52,31 @@
           },
           "omschrijving": {
             "type": "string"
+          },
+          "bronSleutel": {
+            "type": "string"
+          },
+          "bronspecifiekeWaarden": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "naam": {
+                  "type": "string"
+                },
+                "waarde": {
+                  "type": "string"
+                },
+                "volgorde": {
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "naam",
+                "waarde",
+                "volgorde"
+              ]
+            }
           }
         },
         "required": [

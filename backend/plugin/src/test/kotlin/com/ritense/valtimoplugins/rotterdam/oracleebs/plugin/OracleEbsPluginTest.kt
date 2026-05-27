@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.treeToValue
 import com.ritense.valtimo.contract.json.MapperSingleton
 import com.ritense.valtimoplugins.mtlssslcontext.MTlsSslContext
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresLocatie
+import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BronspecifiekeWaarde
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresPostbus
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresType
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BoekingType
@@ -16,11 +17,11 @@ import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.RelatieType
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.SaldoSoort
 import com.ritense.valtimoplugins.rotterdam.oracleebs.service.EsbClient
 import com.ritense.valueresolver.ValueResolverService
+import com.rotterdam.esb.opvoeren.models.Bronspecifiekewaardesegment
 import com.rotterdam.esb.opvoeren.models.Grootboekrekening
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat
-import org.hibernate.validator.constraints.Length
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -44,24 +45,22 @@ class OracleEbsPluginTest {
 
     @BeforeEach
     fun setUp() {
-        mockWebServer =
-            MockWebServer().apply {
-                start()
-            }
+        mockWebServer = MockWebServer().apply {
+            start()
+        }
 
         esbClient = EsbClient()
         valueResolverService = mock()
         mTlsSslContext = mock()
 
-        plugin =
-            OracleEbsPlugin(
-                esbClient = esbClient,
-                valueResolverService = valueResolverService,
-                objectMapper = objectMapper,
-            ).apply {
-                this.baseUrl = mockWebServer.url("/").toUri()
-                this.mTlsSslContextConfiguration = mTlsSslContext
-            }
+        plugin = OracleEbsPlugin(
+            esbClient = esbClient,
+            valueResolverService = valueResolverService,
+            objectMapper = objectMapper,
+        ).apply {
+            this.baseUrl = mockWebServer.url("/").toUri()
+            this.mTlsSslContextConfiguration = mTlsSslContext
+        }
     }
 
     @AfterEach
@@ -73,22 +72,23 @@ class OracleEbsPluginTest {
     fun `should resolve values`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
-        whenever(execution.variables).thenReturn(mapOf("invoiceAmount" to 124.78))
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.variables)
+            .thenReturn(mapOf("invoiceAmount" to 124.78))
         val invoiceAmount = 124.78
         val lastModified = LocalDateTime.parse("2025-03-19T16:15:30")
         val firstName = "John"
         val fixedValueA = "Fixed Value A"
         val fixedValueB = "Fixed Value B"
 
-        val valuesToResolve =
-            mapOf(
-                "invoiceAmount" to "pv:invoiceAmount",
-                "userFirstName" to "doc:/user/firstName",
-                "caseLastModified" to "case:lastModified",
-                "fixedValueA" to fixedValueA,
-                "fixedValueB" to fixedValueB,
-            )
+        val valuesToResolve = mapOf(
+            "invoiceAmount" to "pv:invoiceAmount",
+            "userFirstName" to "doc:/user/firstName",
+            "caseLastModified" to "case:lastModified",
+            "fixedValueA" to fixedValueA,
+            "fixedValueB" to fixedValueB,
+        )
 
         whenever(valueResolverService.resolveValues(any<String>(), any<DelegateExecution>(), any()))
             .thenReturn(
@@ -122,10 +122,11 @@ class OracleEbsPluginTest {
     }
 
     @Test
-    fun `should push journaalpost`() {
+    fun `should push journaalpost with regels from grootboeksleutel`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -157,10 +158,58 @@ class OracleEbsPluginTest {
     }
 
     @Test
-    fun `should push journaalpost (regels via resolver as serialised JSON)`() {
+    fun `should push journaalpost with regels from grootboeksleutel including bronspecifieke waarden`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+
+        mockOkResponse(verwerkingsstatusGeslaagdAsJson())
+
+        // when & then
+        assertDoesNotThrow {
+            plugin.journaalpostOpvoeren(
+                execution = execution,
+                pvResultVariable = "verwerkingsstatus",
+                procesCode = "98332",
+                referentieNummer = "2025-AGV-123456",
+                sleutel = "784",
+                boekdatumTijd = "2025-03-28T13:34:26+02:00",
+                categorie = "Vergunningen",
+                saldoSoort = SaldoSoort.WERKELIJK.title,
+                omschrijving = "Aanvraag Omgevingsvergunning",
+                grootboek = "100",
+                boekjaar = "2025",
+                boekperiode = "2",
+                regels = journaalpostRegelsMetGrootboekSleutelEnBronspecifiekeWaarden(),
+            )
+        }
+
+        mockWebServer.takeRequest().let { recordedRequest ->
+            assertThat(recordedRequest.method).isEqualTo(HttpMethod.POST.name())
+            assertThat(recordedRequest.path).isEqualTo("/journaalpost/opvoeren")
+
+            objectMapper.readTree(recordedRequest.body.readUtf8()).let { body ->
+                val bswArray = body
+                    .get("journaalpost")
+                    .get("journaalpostregels")
+                    .get(0)
+                    .get("bronspecifiekewaarden")
+                assertThat(bswArray).isNotNull
+                assertThat(bswArray.size()).isEqualTo(1)
+                assertThat(bswArray.get(0).get("bronspecifiekewaardesegmentnaam").asText()).isEqualTo("afletterreferentie")
+                assertThat(bswArray.get(0).get("bronspecifiekewaardesegmentwaarde").asText()).isEqualTo("12345")
+                assertThat(bswArray.get(0).get("volgorde").asInt()).isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun `should push journaalpost with regels from grootboeksleutel (regels via resolver as serialised JSON)`() {
+        // given
+        val execution = mock<DelegateExecution>()
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -192,10 +241,48 @@ class OracleEbsPluginTest {
     }
 
     @Test
-    fun `should push journaalpost (regels via resolver as ArrayList (from doc or pv)) from grootboeksleutel`() {
+    fun `should push journaalpost with regels from grootboeksleutel including bronspecifieke waarden (regels via resolver as serialised JSON)`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+
+        mockOkResponse(verwerkingsstatusGeslaagdAsJson())
+
+        // when & then
+        assertDoesNotThrow {
+            plugin.journaalpostOpvoeren(
+                execution = execution,
+                pvResultVariable = "verwerkingsstatus",
+                procesCode = "98332",
+                referentieNummer = "2025-AGV-123456",
+                sleutel = "784",
+                boekdatumTijd = "2025-03-28T13:34:26+02:00",
+                categorie = "Vergunningen",
+                saldoSoort = SaldoSoort.WERKELIJK.title,
+                omschrijving = "Aanvraag Omgevingsvergunning",
+                grootboek = "R10",
+                boekjaar = "2025",
+                boekperiode = "2",
+                regelsViaResolver =
+                    objectMapper.writeValueAsString(journaalpostRegelsMetGrootboekSleutelEnBronspecifiekeWaarden()),
+            )
+        }
+
+        mockWebServer.takeRequest().let { recordedRequest ->
+            assertThat(recordedRequest.method)
+                .isEqualTo(HttpMethod.POST.name())
+            assertThat(recordedRequest.path)
+                .isEqualTo("/journaalpost/opvoeren")
+        }
+    }
+
+    @Test
+    fun `should push journaalpost with regels from grootboeksleutel (regels via resolver as ArrayList)`() {
+        // given
+        val execution = mock<DelegateExecution>()
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -261,10 +348,11 @@ class OracleEbsPluginTest {
     }
 
     @Test
-    fun `should push journaalpost (regels via resolver as ArrayList (from doc or pv)) with bronsleutel`() {
+    fun `should push journaalpost with regels from bronsleutel (regels via resolver as ArrayList)`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -319,10 +407,74 @@ class OracleEbsPluginTest {
     }
 
     @Test
-    fun `should push journaalpost (regels via resolver as ArrayNode)`() {
+    fun `should push journaalpost with regels from grootboeksleutel including bronspecifieke waarden(regels via resolver as ArrayList)`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+
+        mockOkResponse(verwerkingsstatusGeslaagdAsJson())
+
+        // when & then
+        assertDoesNotThrow {
+            plugin.journaalpostOpvoeren(
+                execution = execution,
+                pvResultVariable = "verwerkingsstatus",
+                procesCode = "98332",
+                referentieNummer = "2025-AGV-123456",
+                sleutel = "784",
+                boekdatumTijd = "2025-03-28T13:34:26+02:00",
+                categorie = "Vergunningen",
+                saldoSoort = SaldoSoort.WERKELIJK.title,
+                omschrijving = "Aanvraag Omgevingsvergunning",
+                boekjaar = "2025",
+                boekperiode = "2",
+                regelsViaResolver =
+                    journaalpostRegelsMetGrootboekSleutelEnBronspecifiekeWaarden()
+                        .map { journaalpostRegel ->
+                            linkedMapOf(
+                                GROOTBOEK_SLEUTEL to journaalpostRegel.grootboekSleutel,
+                                BRON_SLEUTEL to journaalpostRegel.bronSleutel,
+                                BOEKING_TYPE to journaalpostRegel.boekingType,
+                                BEDRAG to journaalpostRegel.bedrag,
+                                OMSCHRIJVING to journaalpostRegel.omschrijving,
+                                BRONSPECIFIEKE_WAARDEN to journaalpostRegel.bronspecifiekeWaarden!!.map { bronspecifiekeWaarde ->
+                                    linkedMapOf(
+                                        NAAM to bronspecifiekeWaarde.naam,
+                                        WAARDE to bronspecifiekeWaarde.waarde,
+                                        VOLGORDE to bronspecifiekeWaarde.volgorde,
+                                    )
+                                }.let { ArrayList(it) },
+                            )
+                        }.let { ArrayList(it) },
+            )
+        }
+
+        mockWebServer.takeRequest().let { recordedRequest ->
+            assertThat(recordedRequest.method)
+                .isEqualTo(HttpMethod.POST.name())
+            assertThat(recordedRequest.path)
+                .isEqualTo("/journaalpost/opvoeren")
+
+            objectMapper.readTree(recordedRequest.body.readUtf8()).let { body ->
+                objectMapper
+                    .treeToValue<Bronspecifiekewaardesegment>(
+                    body.get("journaalpost").get("journaalpostregels").get(0).get("bronspecifiekewaarden").get(0),
+                    ).let { bsws ->
+                        assertThat(bsws.bronspecifiekewaardesegmentnaam).isEqualTo("afletterreferentie")
+                        assertThat(bsws.bronspecifiekewaardesegmentwaarde).isEqualTo("12345")
+                        assertThat(bsws.volgorde).isEqualTo(1)
+                    }
+            }
+        }
+    }
+
+    @Test
+    fun `should push journaalpost with regels from grootboeksleutel (regels via resolver as ArrayNode)`() {
+        // given
+        val execution = mock<DelegateExecution>()
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -369,7 +521,8 @@ class OracleEbsPluginTest {
     fun `should push verkoopfactuur`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -405,7 +558,8 @@ class OracleEbsPluginTest {
     fun `should push verkoopfactuur (regels via resolver as serialised JSON)`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -438,10 +592,11 @@ class OracleEbsPluginTest {
     }
 
     @Test
-    fun `should push verkoopfactuur (regels via resolver as ArrayList (from doc or pv)`() {
+    fun `should push verkoopfactuur (regels via resolver as ArrayList)`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -488,7 +643,8 @@ class OracleEbsPluginTest {
     fun `should push verkoopfactuur (regels via resolver as ArrayNode)`() {
         // given
         val execution = mock<DelegateExecution>()
-        whenever(execution.processInstanceId).thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
+        whenever(execution.processInstanceId)
+            .thenReturn("92edbc6c-c736-470d-8deb-382a69f25f43")
 
         mockOkResponse(verwerkingsstatusGeslaagdAsJson())
 
@@ -589,6 +745,24 @@ class OracleEbsPluginTest {
             ),
         )
 
+    private fun journaalpostRegelsMetGrootboekSleutelEnBronspecifiekeWaarden() =
+        listOf(
+            JournaalpostRegel(
+                grootboekSleutel = "600",
+                bronSleutel = null,
+                boekingType = BoekingType.CREDIT.title,
+                bedrag = "150,00",
+                omschrijving = "Afboeken",
+                bronspecifiekeWaarden = listOf(
+                    BronspecifiekeWaarde(
+                        naam = "afletterreferentie",
+                        waarde = "12345",
+                        volgorde = "1",
+                    ),
+                ),
+            ),
+        )
+
     private fun journaalpostRegelMetBronsleutel() =
         listOf(
             JournaalpostRegel(
@@ -648,5 +822,9 @@ class OracleEbsPluginTest {
         private const val GROOTBOEK_SLEUTEL = "grootboekSleutel"
         private const val BRON_SLEUTEL = "bronSleutel"
         private const val OMSCHRIJVING = "omschrijving"
+        private const val BRONSPECIFIEKE_WAARDEN = "bronspecifiekeWaarden"
+        private const val NAAM = "naam"
+        private const val WAARDE = "waarde"
+        private const val VOLGORDE = "volgorde"
     }
 }

@@ -160,16 +160,7 @@
           "validate": {
             "required": true
           },
-          "defaultValue": [
-            {
-              "bedrag": "75.00",
-              "grootboekSleutel": "100.ABC123.DEF456.GH78IJKL.MNOPQR.000.000000",
-              "bronSleutel": "12345",
-              "boekingType": "Debet",
-              "omschrijving": "De omschrijving van de regel"
-            }
-          ],
-          "calculateValue": "value = {\n  \"bedrag\": Number(data['pv:idealBedrag']),\n  \"grootboekSleutel\": \"100.ABC123.DEF456.GH78IJKL.MNOPQR.000.000000\",\n  \"bronSleutel\": \"12345\",\n  \"boekingType\": \"Debet\",\n  \"omschrijving\": \"De omschrijving van de regel\"\n}",
+          "calculateValue": "value = {\n  \"bedrag\": Number(data['pv:idealBedrag']),\n  \"grootboekSleutel\": \"100.ABC123.DEF456.GH78IJKL.MNOPQR.000.000000\",\n  \"bronSleutel\": \"12345\",\n  \"boekingType\": \"Debet\",\n  \"omschrijving\": \"De omschrijving van de regel\"\n, \"bronspecifiekeWaarden\": {\n \"naam\": \"afletterreferentie\",\n  \"waarde\": \"A\",\n  \"volgorde\": 1\n}\n}",
           "components": [
             {
               "label": "Bedrag",
@@ -200,6 +191,39 @@
               "key": "omschrijving",
               "type": "textfield",
               "input": true
+            },
+            {
+              "label": "Bronspecifieke waarden",
+              "key": "bronspecifiekeWaarden",
+              "type": "datagrid",
+              "input": true,
+              "disableAddingRemovingRows": true,
+              "layoutFixed": false,
+              "enableRowGroups": false,
+              "initEmpty": false,
+              "validate": {
+                "required": true
+              },
+              "components": [
+                {
+                  "label": "Naam",
+                  "key": "naam",
+                  "type": "textfield",
+                  "input": true
+                },
+                {
+                  "label": "Waarde",
+                  "key": "waarde",
+                  "type": "textfield",
+                  "input": true
+                },
+                {
+                  "label": "Volgorde",
+                  "key": "volgorde",
+                  "type": "number",
+                  "input": true
+                }
+              ]
             }
           ]
         }

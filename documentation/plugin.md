@@ -117,13 +117,21 @@ be added/supported.
 #### When adding a new version of an existing action:
 
 1. Make the required changes to the action in the plugin 
-   [OracleEbsPlugin](src/main/kotlin/com/ritense/valtimoplugins/rotterdam/oracleebs/plugin/OracleEbsPlugin.kt)..
-2. Update the README if necessary.
-3. Increase the plugin version in the [plugin.properties](plugin.properties).
+   [OracleEbsPlugin](../backend/plugin/src/main/kotlin/com/ritense/valtimoplugins/rotterdam/oracleebs/plugin/OracleEbsPlugin.kt)..
+2. Make the required changes to the plugin action configuration component in the frontend.
+   
 
-#### When adding a action:
+#### When adding a new action:
 
-1. Add the new action in the plugin
-   [OracleEbsPlugin](src/main/kotlin/com/ritense/valtimoplugins/rotterdam/oracleebs/plugin/OracleEbsPlugin.kt).
-2. Update the README if necessary.
-3. Increase the plugin version in the [plugin.properties](plugin.properties).
+1. Add the new action in the plugin 
+   [OracleEbsPlugin](../backend/plugin/src/main/kotlin/com/ritense/valtimoplugins/rotterdam/oracleebs/plugin/OracleEbsPlugin.kt).
+2. Add the required plugin action configuration component in the frontend.
+
+#### When adding a new version of an existing action or adding a new action:
+
+1. Update the documentation if necessary.
+2. Increase the plugin version in:
+   - Backend: [plugin.properties](../backend/plugin/plugin.properties)
+   - Frontend:
+     - [package.json](../frontend/projects/plugin/package.json)
+     - [plugin.properties](../frontend/projects/plugin/plugin.properties)
