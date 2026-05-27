@@ -17,7 +17,6 @@ import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.AdresType
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BoekingType
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.FactuurKlasse
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.FactuurRegel
-import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.BronspecifiekeWaarde
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.JournaalpostRegel
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.NatuurlijkPersoon
 import com.ritense.valtimoplugins.rotterdam.oracleebs.domain.NietNatuurlijkPersoon
@@ -40,8 +39,6 @@ import org.operaton.bpm.engine.delegate.DelegateExecution
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.RestClientResponseException
 import java.net.URI
-import java.util.LinkedHashMap
-import kotlin.String
 
 @Plugin(
     key = "rotterdam-oracle-ebs",
@@ -100,7 +97,7 @@ class OracleEbsPlugin(
                 "grootboek: $grootboek" +
                 "boekjaar: $boekjaar" +
                 "boekperiode: $boekperiode" +
-                ")"
+            ")"
         }
 
         // prepare lines
@@ -198,29 +195,38 @@ class OracleEbsPlugin(
         execution: DelegateExecution,
         journaalpostRegels: List<JournaalpostRegel>,
     ) = journaalpostRegels.map { regel ->
-        val resolvedLineValues =
-            resolveValuesFor(
-                execution,
-                mapOf(
-                    GROOTBOEK_SLEUTEL_KEY to regel.grootboekSleutel,
-                    BRON_SLEUTEL_KEY to regel.bronSleutel,
-                    BOEKING_TYPE_KEY to regel.boekingType,
-                    BEDRAG_KEY to regel.bedrag,
-                    OMSCHRIJVING_KEY to regel.omschrijving,
-                ),
-            ).also {
-                logger.debug { "Resolved line values: $it" }
-            }
+        val resolvedLineValues = resolveValuesFor(
+            execution,
+            mapOf(
+                GROOTBOEK_SLEUTEL_KEY to regel.grootboekSleutel,
+                BRON_SLEUTEL_KEY to regel.bronSleutel,
+                BOEKING_TYPE_KEY to regel.boekingType,
+                BEDRAG_KEY to regel.bedrag,
+                OMSCHRIJVING_KEY to regel.omschrijving
+            ),
+        ).also {
+            logger.debug { "Resolved line values: $it" }
+        }
         Journaalpostregel(
             grootboekrekening = grootboekRekening(resolvedLineValues),
             journaalpostregelboekingtype = boekingTypeFrom(resolvedLineValues[BOEKING_TYPE_KEY]!!),
             journaalpostregelbedrag = ValueConverter.doubleFrom(resolvedLineValues[BEDRAG_KEY]!!),
             journaalpostregelomschrijving = ValueConverter.stringOrNullFrom(resolvedLineValues[OMSCHRIJVING_KEY]!!),
-            bronspecifiekewaarden = regel.bronspecifiekewaarden?.map { bsw ->
+            bronspecifiekewaarden = regel.bronspecifiekeWaarden?.map { bsw ->
+                val resolvedSourceSpecificValues = resolveValuesFor(
+                    execution,
+                    mapOf(
+                        NAAM_KEY to bsw.naam,
+                        WAARDE_KEY to bsw.waarde,
+                        VOLGORDE_KEY to bsw.volgorde
+                    ),
+                ).also {
+                    logger.debug { "Resolved source specific values: $it" }
+                }
                 Bronspecifiekewaardesegment(
-                    bronspecifiekewaardesegmentnaam = bsw.naam,
-                    bronspecifiekewaardesegmentwaarde = bsw.waarde,
-                    volgorde = bsw.volgorde,
+                    bronspecifiekewaardesegmentnaam = ValueConverter.stringFrom(resolvedSourceSpecificValues[NAAM_KEY]!!),
+                    bronspecifiekewaardesegmentwaarde = ValueConverter.stringFrom(resolvedSourceSpecificValues[WAARDE_KEY]!!),
+                    volgorde = ValueConverter.integerFrom(resolvedSourceSpecificValues[VOLGORDE_KEY]!!),
                 )
             },
         )
@@ -384,22 +390,21 @@ class OracleEbsPlugin(
         locatieadres =
             if (adresType == AdresType.LOCATIE) {
                 requireNotNull(adresLocatie)
-                val resolvedValues =
-                    resolveValuesFor(
-                        execution,
-                        mapOf(
-                            NAAM_CONTACTPERSOON_KEY to adresLocatie.naamContactpersoon,
-                            VESTIGINGNUMMER_ROTTERDAM_KEY to adresLocatie.vestigingsnummerRotterdam,
-                            STRAATNAAM_KEY to adresLocatie.straatnaam,
-                            HUISNUMMER_KEY to adresLocatie.huisnummer,
-                            HUISNUMMER_TOEVOEGING_KEY to adresLocatie.huisnummertoevoeging,
-                            PLAATSNAAM_KEY to adresLocatie.plaatsnaam,
-                            POSTCODE_KEY to adresLocatie.postcode,
-                            LANDCODE_KEY to adresLocatie.landcode,
-                        ),
-                    ).also {
-                        logger.debug { "Resolved locatie adres values: $it" }
-                    }
+                val resolvedValues = resolveValuesFor(
+                    execution,
+                    mapOf(
+                        NAAM_CONTACTPERSOON_KEY to adresLocatie.naamContactpersoon,
+                        VESTIGINGNUMMER_ROTTERDAM_KEY to adresLocatie.vestigingsnummerRotterdam,
+                        STRAATNAAM_KEY to adresLocatie.straatnaam,
+                        HUISNUMMER_KEY to adresLocatie.huisnummer,
+                        HUISNUMMER_TOEVOEGING_KEY to adresLocatie.huisnummertoevoeging,
+                        PLAATSNAAM_KEY to adresLocatie.plaatsnaam,
+                        POSTCODE_KEY to adresLocatie.postcode,
+                        LANDCODE_KEY to adresLocatie.landcode,
+                    ),
+                ).also {
+                    logger.debug { "Resolved locatie adres values: $it" }
+                }
                 com.rotterdam.esb.opvoeren.models.LocatieAdres(
                     naamContactpersoon = ValueConverter.stringOrNullFrom(resolvedValues[NAAM_CONTACTPERSOON_KEY]),
                     vestigingsnummerRotterdam =
@@ -419,20 +424,19 @@ class OracleEbsPlugin(
         postbusadres =
             if (adresType == AdresType.POSTBUS) {
                 requireNotNull(adresPostbus)
-                val resolvedValues =
-                    resolveValuesFor(
-                        execution,
-                        mapOf(
-                            NAAM_CONTACTPERSOON_KEY to adresPostbus.naamContactpersoon,
-                            VESTIGINGNUMMER_ROTTERDAM_KEY to adresPostbus.vestigingsnummerRotterdam,
-                            POSTBUS_KEY to adresPostbus.postbus,
-                            PLAATSNAAM_KEY to adresPostbus.plaatsnaam,
-                            POSTCODE_KEY to adresPostbus.postcode,
-                            LANDCODE_KEY to adresPostbus.landcode,
-                        ),
-                    ).also {
-                        logger.debug { "Resolved postbus adres values: $it" }
-                    }
+                val resolvedValues = resolveValuesFor(
+                    execution,
+                    mapOf(
+                        NAAM_CONTACTPERSOON_KEY to adresPostbus.naamContactpersoon,
+                        VESTIGINGNUMMER_ROTTERDAM_KEY to adresPostbus.vestigingsnummerRotterdam,
+                        POSTBUS_KEY to adresPostbus.postbus,
+                        PLAATSNAAM_KEY to adresPostbus.plaatsnaam,
+                        POSTCODE_KEY to adresPostbus.postcode,
+                        LANDCODE_KEY to adresPostbus.landcode,
+                    ),
+                ).also {
+                    logger.debug { "Resolved postbus adres values: $it" }
+                }
                 com.rotterdam.esb.opvoeren.models.PostbusAdres(
                     naamContactpersoon = ValueConverter.stringOrNullFrom(resolvedValues[NAAM_CONTACTPERSOON_KEY]),
                     vestigingsnummerRotterdam =
@@ -474,17 +478,16 @@ class OracleEbsPlugin(
         relatienummerRotterdam = null,
         natuurlijkPersoon =
             if (relatieType == RelatieType.NATUURLIJK_PERSOON) {
-                val resolvedValues =
-                    resolveValuesFor(
-                        execution,
-                        mapOf(
-                            BSN_KEY to natuurlijkPersoon!!.bsn,
-                            ACHTERNAAM_KEY to natuurlijkPersoon.achternaam,
-                            VOORNAMEN_KEY to natuurlijkPersoon.voornamen,
-                        ),
-                    ).also {
-                        logger.debug { "Resolved natuurlijk persoon values: $it" }
-                    }
+                val resolvedValues = resolveValuesFor(
+                    execution,
+                    mapOf(
+                        BSN_KEY to natuurlijkPersoon!!.bsn,
+                        ACHTERNAAM_KEY to natuurlijkPersoon.achternaam,
+                        VOORNAMEN_KEY to natuurlijkPersoon.voornamen,
+                    ),
+                ).also {
+                    logger.debug { "Resolved natuurlijk persoon values: $it" }
+                }
                 com.rotterdam.esb.opvoeren.models.NatuurlijkPersoon(
                     bsn = ValueConverter.stringFrom(resolvedValues[BSN_KEY]!!),
                     achternaam = ValueConverter.stringFrom(resolvedValues[ACHTERNAAM_KEY]!!),
@@ -717,5 +720,8 @@ class OracleEbsPlugin(
         private const val PLAATSNAAM_KEY = "plaatsnaam"
         private const val POSTCODE_KEY = "postcode"
         private const val LANDCODE_KEY = "landcode"
+        private const val NAAM_KEY = "naam"
+        private const val WAARDE_KEY = "waarde"
+        private const val VOLGORDE_KEY = "volgorde"
     }
 }

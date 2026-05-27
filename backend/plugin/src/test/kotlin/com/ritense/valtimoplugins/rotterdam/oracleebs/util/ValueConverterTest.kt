@@ -99,6 +99,19 @@ class ValueConverterTest {
     }
 
     @Test
+    fun `integerFrom handles Int and numeric String`() {
+        assertThat(ValueConverter.integerFrom(42)).isEqualTo(42)
+        assertThat(ValueConverter.integerFrom("42")).isEqualTo(42)
+    }
+
+    @Test
+    fun `integerFrom throws on unsupported type`() {
+        assertThrows<IllegalArgumentException>{
+            assertNull(ValueConverter.integerFrom(42.0))
+        }
+    }
+
+    @Test
     fun `integerOrNullFrom handles Int and numeric String`() {
         assertThat(ValueConverter.integerOrNullFrom(42)).isEqualTo(42)
         assertThat(ValueConverter.integerOrNullFrom("42")).isEqualTo(42)
