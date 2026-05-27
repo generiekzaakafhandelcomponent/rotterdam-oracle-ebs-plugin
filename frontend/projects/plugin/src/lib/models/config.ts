@@ -50,7 +50,7 @@ interface JournaalpostRegel {
     boekingType: string;
     bedrag: string;
     omschrijving?: string;
-    bronspecifiekewaarden?: BronspecifiekeWaarde[];
+    bronspecifiekeWaarden?: BronspecifiekeWaarde[];
 }
 
 interface VerkoopfactuurOpvoerenConfig {

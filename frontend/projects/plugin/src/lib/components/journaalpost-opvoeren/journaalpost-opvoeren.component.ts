@@ -109,7 +109,7 @@ export class JournaalpostOpvoerenComponent implements FunctionConfigurationCompo
     }
 
     getBronwaarden(lineIndex: number): FormArray {
-        return this.lines.at(lineIndex).get('bronspecifiekewaarden') as FormArray;
+        return this.lines.at(lineIndex).get('bronspecifiekeWaarden') as FormArray;
     }
 
     addBronwaarde(lineIndex: number): void {
@@ -150,7 +150,7 @@ export class JournaalpostOpvoerenComponent implements FunctionConfigurationCompo
             boekingType: this.fb.control(null, Validators.required),
             omschrijving: this.fb.control(''),
             bedrag: this.fb.control('', Validators.required),
-            bronspecifiekewaarden: this.fb.array([]),
+            bronspecifiekeWaarden: this.fb.array([]),
         });
     }
 
@@ -171,7 +171,7 @@ export class JournaalpostOpvoerenComponent implements FunctionConfigurationCompo
                     if (configuration.regels != undefined) {
                         configuration.regels.forEach((regel, i) => {
                             this.addLine();
-                            regel.bronspecifiekewaarden?.forEach(() => this.addBronwaarde(i));
+                            regel.bronspecifiekeWaarden?.forEach(() => this.addBronwaarde(i));
                         });
                     }
                     // prefill form values
@@ -193,7 +193,7 @@ export class JournaalpostOpvoerenComponent implements FunctionConfigurationCompo
                             boekingType: this.fromBoekingType(regel.boekingType),
                             omschrijving: regel.omschrijving,
                             bedrag: regel.bedrag,
-                            bronspecifiekewaarden: regel.bronspecifiekewaarden?.map((bsw: BronspecifiekeWaarde) => ({
+                            bronspecifiekeWaarden: regel.bronspecifiekeWaarden?.map((bsw: BronspecifiekeWaarde) => ({
                                 naam: bsw.naam,
                                 waarde: bsw.waarde,
                                 volgorde: bsw.volgorde,
@@ -236,7 +236,7 @@ export class JournaalpostOpvoerenComponent implements FunctionConfigurationCompo
                         boekingType: this.toBoekingType(regel.boekingType),
                         omschrijving: regel.omschrijving,
                         bedrag: regel.bedrag,
-                        bronspecifiekewaarden: regel.bronspecifiekewaarden?.length
+                        bronspecifiekeWaarden: regel.bronspecifiekeWaarden?.length
                             ? regel.bronspecifiekewaarden.map((bsw: BronspecifiekeWaarde) => ({
                                 naam: bsw.naam,
                                 waarde: bsw.waarde,

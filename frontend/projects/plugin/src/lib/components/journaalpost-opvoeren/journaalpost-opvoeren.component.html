@@ -144,12 +144,12 @@
                          *ngFor="let line of lines.controls; let i = index">
                         <div class="line-fields">
                             <app-input-field
-                                    [pluginId]="pluginId"
-                                    [formGroup]="line"
-                                    controlName="bronSleutel"
-                                    wrapperClass="line-field-wrapper"
-                                    title="journaalpost.regel.bronSleutel"
-                                    [required]="false"
+                                  [pluginId]="pluginId"
+                                  [formGroup]="line"
+                                  controlName="bronSleutel"
+                                  wrapperClass="line-field-wrapper"
+                                  title="journaalpost.regel.bronSleutel"
+                                  [required]="false"
                             ></app-input-field>
                             <app-input-field
                                 [pluginId]="pluginId"
@@ -190,10 +190,10 @@
                             ></app-input-field>
 
                             <div [formGroup]="$any(line)">
-                                <div formArrayName="bronspecifiekewaarden">
+                                <div formArrayName="bronspecifiekeWaarden">
                                     <v-input-label
-                                        [title]="'journaalpost.regel.bronspecifiekewaarden' | pluginTranslate: pluginId | async"
-                                        [tooltip]="'journaalpost.regel.bronspecifiekewaarden.tooltip' | pluginTranslate: pluginId | async"
+                                        [title]="'journaalpost.regel.bronspecifiekeWaarden' | pluginTranslate: pluginId | async"
+                                        [tooltip]="'journaalpost.regel.bronspecifiekeWaarden.tooltip' | pluginTranslate: pluginId | async"
                                     ></v-input-label>
                                     <div class="line-wrapper"
                                          *ngFor="let bsw of getBronwaarden(i).controls; let j = index">
@@ -290,11 +290,11 @@
         "boekingType": "", // [One of: Credit | Debet]
         "bedrag": "",
         "omschrijving": "", // Optional
-        "bronspecifiekewaarden": [ // Optional
+        "bronspecifiekeWaarden": [ // Optional
             &#123;
                 "naam": "",
                 "waarde": "",
-                "volgorde": 1
+                "volgorde": ""
             &#125;
         ]
     &#125;,

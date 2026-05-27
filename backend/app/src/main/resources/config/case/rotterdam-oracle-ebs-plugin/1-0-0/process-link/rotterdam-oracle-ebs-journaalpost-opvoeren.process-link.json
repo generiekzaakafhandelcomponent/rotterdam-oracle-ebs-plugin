@@ -42,7 +42,7 @@
           "boekingType": "doc:journaalpostRegels[0].boekingType",
           "bedrag": "doc:journaalpostRegels[0].bedrag",
           "omschrijving": "doc:journaalpostRegels[0].omschrijving",
-          "bronspecifiekewaarden": [
+          "bronspecifiekeWaarden": [
             {
               "naam": "doc:journaalpostRegels[0].bronspecifiekeWaarden[0].naam",
               "waarde": "doc:journaalpostRegels[0].bronspecifiekeWaarden[0].waarde",
