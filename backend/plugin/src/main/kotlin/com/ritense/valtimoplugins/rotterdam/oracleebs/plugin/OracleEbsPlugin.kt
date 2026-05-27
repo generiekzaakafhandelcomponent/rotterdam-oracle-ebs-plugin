@@ -690,7 +690,7 @@ class OracleEbsPlugin(
         )
 
     private fun objectMapperWithNonAbsentInclusion(objectMapper: ObjectMapper): ObjectMapper =
-        objectMapper.copy().setSerializationInclusion(JsonInclude.Include.NON_ABSENT)
+        objectMapper.copy().setDefaultPropertyInclusion(JsonInclude.Include.NON_ABSENT)
 
     companion object {
         private val logger = KotlinLogging.logger {}
