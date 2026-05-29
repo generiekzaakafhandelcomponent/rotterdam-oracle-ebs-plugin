@@ -30,7 +30,7 @@ import {Toggle} from "carbon-components-angular";
 import {EnumUtilsService} from "../../service/enum-utils.service";
 
 @Component({
-  standalone: false,
+    standalone: false,
     selector: 'valtimo-rotterdam-oracle-ebs-journaalpost-opvoeren',
     templateUrl: './journaalpost-opvoeren.component.html',
     styleUrl: './journaalpost-opvoeren.component.scss'

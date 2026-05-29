@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
+import {Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild} from '@angular/core';
 import {
     PluginConfigurationComponent,
     PluginConfigurationData,
@@ -28,7 +28,7 @@ import {Toggle} from "carbon-components-angular";
 import {NGXLogger} from "ngx-logger";
 
 @Component({
-  standalone: false,
+    standalone: false,
     selector: 'valtimo-rotterdam-oracle-ebs-configuration',
     templateUrl: './configuration.component.html',
     styleUrl: 'configuration.component.scss'
