@@ -167,6 +167,8 @@ export class JournaalpostOpvoerenComponent implements FunctionConfigurationCompo
             this.prefillConfiguration$.subscribe(configuration => {
                 if (configuration) {
                     this.logger.debug('Prefilling form - configuration', configuration);
+                    // reset lines to avoid duplication when prefill runs more than once
+                    this.lines.clear();
                     // add lines
                     if (configuration.regels != undefined) {
                         configuration.regels.forEach((regel, i) => {
@@ -237,7 +239,7 @@ export class JournaalpostOpvoerenComponent implements FunctionConfigurationCompo
                         omschrijving: regel.omschrijving,
                         bedrag: regel.bedrag,
                         bronspecifiekeWaarden: regel.bronspecifiekeWaarden?.length
-                            ? regel.bronspecifiekewaarden.map((bsw: BronspecifiekeWaarde) => ({
+                            ? regel.bronspecifiekeWaarden.map((bsw: BronspecifiekeWaarde) => ({
                                 naam: bsw.naam,
                                 waarde: bsw.waarde,
                                 volgorde: bsw.volgorde,
