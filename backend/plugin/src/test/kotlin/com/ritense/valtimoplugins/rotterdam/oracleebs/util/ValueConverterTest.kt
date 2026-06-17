@@ -106,7 +106,7 @@ class ValueConverterTest {
 
     @Test
     fun `integerFrom throws on unsupported type`() {
-        assertThrows<IllegalArgumentException>{
+        assertThrows<IllegalArgumentException> {
             assertNull(ValueConverter.integerFrom(42.0))
         }
     }

@@ -113,6 +113,10 @@ tasks.named("sourcesJar") {
     )
 }
 
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask>().configureEach {
+    mustRunAfter("openApiGenerate")
+}
+
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     filter {
         exclude { it.file.path.contains("/build/") }
