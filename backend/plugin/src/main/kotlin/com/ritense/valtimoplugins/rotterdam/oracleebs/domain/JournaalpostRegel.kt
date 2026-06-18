@@ -17,15 +17,16 @@ data class JournaalpostRegel(
                 boekingType = map["boekingType"] as String,
                 bedrag = map["bedrag"] as String,
                 omschrijving = map["omschrijving"] as? String,
-                bronspecifiekeWaarden = (map["bronspecifiekeWaarden"] as? List<*>)
-                    ?.filterIsInstance<LinkedHashMap<String, Any>>()
-                    ?.map {
-                        BronspecifiekeWaarde(
-                            naam = it["naam"] as String,
-                            waarde = it["waarde"] as String,
-                            volgorde = it["volgorde"] as String,
-                        )
-                    },
+                bronspecifiekeWaarden =
+                    (map["bronspecifiekeWaarden"] as? List<*>)
+                        ?.filterIsInstance<LinkedHashMap<String, Any>>()
+                        ?.map {
+                            BronspecifiekeWaarde(
+                                naam = it["naam"] as String,
+                                waarde = it["waarde"] as String,
+                                volgorde = it["volgorde"] as String,
+                            )
+                        },
             )
     }
 }
