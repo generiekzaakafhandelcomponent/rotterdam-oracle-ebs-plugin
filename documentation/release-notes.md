@@ -2,6 +2,10 @@
 
 Overzicht van wijzigingen per versie van de Rotterdam Oracle EBS-plugin.
 
+## 2.0.5
+
+Valtimo bijgewerkt naar versie 13.41.0.
+
 ## 2.0.4
 Voorinvullen van journaalpost-regels werkt nu correct en veroorzaakt geen dubbele waarden of fouten meer.
 
